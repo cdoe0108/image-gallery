@@ -4,11 +4,21 @@ window.addEventListener('load', function (e) {
     let pgNo = 1
     const galleryEle = document.getElementById('gallery')
     const searchInput = document.getElementById('search-input')
+    const noResult = document.getElementById('no-result')
     //API to get images
-    const getImages = (pageNo) => {
-        const url = `https://api.unsplash.com/photos?page=${pageNo}&per_page=10&client_id=${API_KEY}`
+    const getImages = (pageNo, value) => {
+        let url = `https://api.unsplash.com/photos?page=${pageNo}&per_page=10&client_id=${API_KEY}`
+        if(value.length > 0 ){
+            url = `https://api.unsplash.com/search/photos?query=${value}&page=${pgNo}&client_id=${API_KEY}`
+        }
+        
         fetch(url).then(res => res.json()).then(result => {
             // console.log('Success:', result);
+            if(pgNo === 1){
+                galleryEle.innerHTML = ''
+            }
+            if(value.length > 0) {result = result.results}
+            noResult.style.display = (result.length <= 0) ? 'block' : 'none'
             result.map(item => renderImageContainer(item))
             pgNo++;
         })
@@ -18,12 +28,12 @@ window.addEventListener('load', function (e) {
     }
 
     // get inital set of images
-    getImages(pgNo)
+    getImages(pgNo, '')
 
     // Detect when scrolled to bottom.
     galleryEle.addEventListener('scroll', function () {
         if (galleryEle.scrollTop + galleryEle.clientHeight >= galleryEle.scrollHeight) {
-            getImages(pgNo);
+            searchInput.value.length > 0 ? getImages(pgNo, searchInput.value) : getImages(pgNo, '');
         }
     });
 
@@ -89,18 +99,12 @@ window.addEventListener('load', function (e) {
 
     const searchImage = (event) => {
         const { value } = event.target
-        const url = `https://api.unsplash.com/search/photos?query=${value}&client_id=${API_KEY}`
         if (value.length <= 0) {
-            getImages(pgNo)
+            getImages(pgNo,'')
+        } else {
+            pgNo = 1
+            getImages(pgNo,value)
         }
-        fetch(url).then(res => res.json()).then(result => {
-            // console.log('Success:', result);
-            galleryEle.innerHTML = ""
-            result.results.map(item => renderImageContainer(item))
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
     }
 
     searchInput.addEventListener('change', searchImage)

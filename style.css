@@ -86,3 +86,13 @@
     border: 1px solid rgba(0,0,0,0.1);
     color: rgba(255,255,255, 1)
 }
+
+#no-result{
+    padding: 10px 20px;
+    text-align: center;
+    background: #eaedf1;
+    border-radius: 5px;
+    margin: 0 auto;
+    width: 85%;
+    display: none;
+}
